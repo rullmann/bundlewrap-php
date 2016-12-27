@@ -1,0 +1,92 @@
+[${pool_name}]
+
+; Per pool prefix
+; It only applies on the following directives:
+; - 'slowlog'
+; - 'listen' (unixsocket)
+; - 'chroot'
+; - 'chdir'
+; - 'php_values'
+; - 'php_admin_values'
+; When not set, the global prefix (or @php_fpm_prefix@) applies instead.
+; Note: This directive can also be relative to the global prefix.
+; Default Value: none
+;prefix = /path/to/pools/$pool
+
+user = ${pool_options.get('user', 'nginx')}
+group = ${pool_options.get('group', 'nginx')}
+
+% if pool_options.get('use_socket', False):
+listen = ${pool_options.get('listen_socket')}
+listen.owner = ${pool_options.get('listen_user', 'nginx')}
+listen.group = ${pool_options.get('listen_group', 'nginx')}
+listen.mode = ${pool_options.get('listen_mode', '0660')}
+% else:
+listen = ${pool_options.get('listen_ip', '127.0.0.1')}:${pool_options.get('listen_port', '9001')}
+% endif
+
+;listen.backlog = 65535
+
+; When POSIX Access Control Lists are supported you can set them using
+; these options, value is a comma separated list of user/group names.
+; When set, listen.owner and listen.group are ignored
+;listen.acl_users = apache,nginx
+;listen.acl_groups =
+
+listen.allowed_clients = 127.0.0.1
+
+pm = dynamic
+
+% if 'pm_children' in pool_options:
+pm.start_servers = ${pool_options['pm_children'][0]}
+pm.min_spare_servers = ${pool_options['pm_children'][1]}
+pm.max_spare_servers = ${pool_options['pm_children'][2]}
+pm.max_children = ${pool_options['pm_children'][3]}
+pm.max_requests = ${pool_options['pm_children'][4]}
+% else:
+pm.start_servers = 2
+pm.min_spare_servers = 2
+pm.max_spare_servers = 4
+pm.max_children = 8
+pm.max_requests = 0
+% endif
+
+pm.process_idle_timeout = ${pool_options.get('pm.process_idle_timeout', '10s')}
+
+% if pool_options.get('status', False):
+pm.status_path = /status
+ping.path = /ping
+% endif
+
+; The access log file
+; Default: not set
+;access.log = log/$pool.access.log
+
+; The log file for slow requests
+; Default Value: not set
+; Note: slowlog is mandatory if request_slowlog_timeout is set
+slowlog = /var/log/php-fpm/www-slow.log
+
+; Default Value: nothing is defined by default except the values in php.ini and
+;                specified at startup with the -d argument
+;php_admin_value[sendmail_path] = /usr/sbin/sendmail -t -i -f www@my.domain.com
+;php_flag[display_errors] = off
+php_admin_value[error_log] = /var/log/php-fpm/www-error.log
+php_admin_flag[log_errors] = on
+;php_admin_value[memory_limit] = 128M
+
+; Set session path to a directory owned by process user
+php_value[session.save_handler] = files
+php_value[session.save_path]    = /var/lib/php/session
+php_value[soap.wsdl_cache_dir]  = /var/lib/php/wsdlcache
+
+% for name, value in sorted(pool_options.get('php_admin_value', {}).items()):
+php_admin_value[${name}] = ${value}
+% endfor
+% for name, value in sorted(pool_options.get('php_admin_flag', {}).items()):
+php_admin_flag[${name}] = ${value}
+% endfor
+
+% if pool_options.get('use_chdir', False):
+chdir = ${pool_options.get('chdir', '/')}
+% endif

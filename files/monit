@@ -1,0 +1,9 @@
+# php-fpm
+
+  check process php-fpm
+    matching "php-fpm: master process"
+    start program = "/usr/bin/systemctl start php-fpm"
+    stop program  = "/usr/bin/systemctl stop php-fpm"
+    if cpu > 10% for 2 cycles then alert
+    if cpu > 20% for 5 cycles then restart
+    if 3 restarts within 5 cycles then timeout
