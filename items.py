@@ -71,18 +71,14 @@ for pool_name, pool_options in sorted(node.metadata.get('php', {}).get('fpm_pool
         ],
     }
 
-    if node.has_bundle("monit"):
-        files['/etc/monit.d/php-fpm'] = {
-            'source': "monit",
-            'mode': "0640",
-            'owner': "root",
-            'group': "root",
-            'content_type': "mako",
-            'context': {
-                'pool_name': pool_name,
-                'pool_options': pool_options,
-            },
-            'triggers': [
-                "svc_systemd:monit:restart",
-            ],
-        }
+if node.has_bundle("monit"):
+    files['/etc/monit.d/php-fpm'] = {
+        'source': "monit",
+        'mode': "0640",
+        'owner': "root",
+        'group': "root",
+        'content_type': "mako",
+        'triggers': [
+            "svc_systemd:monit:restart",
+        ],
+    }
