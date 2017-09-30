@@ -5,9 +5,7 @@ pkg_dnf = {
 
 svc_systemd = {
     'php-fpm': {
-        'needs': [
-            'pkg_dnf:php-fpm',
-        ],
+        'needs': ['pkg_dnf:php-fpm'],
     },
 }
 
@@ -16,26 +14,18 @@ files = {
         'source': 'php-fpm.conf',
         'mode': '0644',
         'content_type': 'mako',
-        'needs': [
-            'pkg_dnf:php-fpm',
-        ],
-        'triggers': [
-            'svc_systemd:php-fpm:restart',
-        ],
+        'needs': ['pkg_dnf:php-fpm'],
+        'triggers': ['svc_systemd:php-fpm:restart'],
     },
     '/etc/php.ini': {
         'source': 'php.ini',
         'mode': '0644',
         'content_type': 'mako',
-        'needs': [
-            'pkg_dnf:php-cli',
-        ],
+        'needs': ['pkg_dnf:php-cli'],
     },
     '/etc/php-fpm.d/www.conf': {
         'delete': True,
-        'needs': [
-            'pkg_dnf:php-fpm',
-        ],
+        'needs': ['pkg_dnf:php-fpm'],
     },
 }
 
@@ -56,12 +46,8 @@ for pool_name, pool_options in sorted(node.metadata.get('php', {}).get('fpm_pool
             'pool_name': pool_name,
             'pool_options': pool_options,
         },
-        'needs': [
-            'pkg_dnf:php-fpm',
-        ],
-        'triggers': [
-            'svc_systemd:php-fpm:restart',
-        ],
+        'needs': ['pkg_dnf:php-fpm'],
+        'triggers': ['svc_systemd:php-fpm:restart'],
     }
 
 if node.has_bundle('monit'):
@@ -69,7 +55,5 @@ if node.has_bundle('monit'):
         'source': 'monit',
         'mode': '0640',
         'content_type': 'mako',
-        'triggers': [
-            'svc_systemd:monit:restart',
-        ],
+        'triggers': ['svc_systemd:monit:restart'],
     }
