@@ -13,14 +13,14 @@ svc_systemd = {
 
 files = {
     '/etc/php-fpm.conf': {
-        'source': "php-fpm.conf",
-        'mode': "0644",
-        'content_type': "mako",
+        'source': 'php-fpm.conf',
+        'mode': '0644',
+        'content_type': 'mako',
         'needs': [
-            "pkg_dnf:php-fpm",
+            'pkg_dnf:php-fpm',
         ],
         'triggers': [
-            "svc_systemd:php-fpm:restart",
+            'svc_systemd:php-fpm:restart',
         ],
     },
     '/etc/php.ini': {
@@ -28,22 +28,22 @@ files = {
         'mode': '0644',
         'content_type': 'mako',
         'needs': [
-            "pkg_dnf:php-cli",
+            'pkg_dnf:php-cli',
         ],
     },
     '/etc/php-fpm.d/www.conf': {
         'delete': True,
         'needs': [
-            "pkg_dnf:php-fpm",
+            'pkg_dnf:php-fpm',
         ],
     },
 }
 
 for pkg in node.metadata['php']['packages']:
-    pkg_dnf["php-" + pkg] = {
+    pkg_dnf['php-' + pkg] = {
         'needs': [
-            "pkg_dnf:php-fpm",
-            "pkg_dnf:php-cli",
+            'pkg_dnf:php-fpm',
+            'pkg_dnf:php-cli',
         ],
     }
 
@@ -57,19 +57,19 @@ for pool_name, pool_options in sorted(node.metadata.get('php', {}).get('fpm_pool
             'pool_options': pool_options,
         },
         'needs': [
-            "pkg_dnf:php-fpm",
+            'pkg_dnf:php-fpm',
         ],
         'triggers': [
-            "svc_systemd:php-fpm:restart",
+            'svc_systemd:php-fpm:restart',
         ],
     }
 
-if node.has_bundle("monit"):
+if node.has_bundle('monit'):
     files['/etc/monit.d/php-fpm'] = {
-        'source': "monit",
-        'mode': "0640",
-        'content_type': "mako",
+        'source': 'monit',
+        'mode': '0640',
+        'content_type': 'mako',
         'triggers': [
-            "svc_systemd:monit:restart",
+            'svc_systemd:monit:restart',
         ],
     }
