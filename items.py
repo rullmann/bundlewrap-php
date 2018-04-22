@@ -29,6 +29,13 @@ files = {
     },
 }
 
+directories = {
+    '/var/lib/php/session': {
+        'group': 'nginx',
+        'mode': '0770',
+    },
+}
+
 for pkg in node.metadata['php']['packages']:
     pkg_dnf['php-' + pkg] = {
         'needs': ['pkg_dnf:php-fpm', 'pkg_dnf:php-cli'],
