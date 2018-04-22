@@ -32,6 +32,7 @@ files = {
 for pkg in node.metadata['php']['packages']:
     pkg_dnf['php-' + pkg] = {
         'needs': ['pkg_dnf:php-fpm', 'pkg_dnf:php-cli'],
+        'triggers': ['svc_systemd:php-fpm:restart'],
     }
 
 for pool_name, pool_options in sorted(node.metadata.get('php', {}).get('fpm_pools', {}).items()):
